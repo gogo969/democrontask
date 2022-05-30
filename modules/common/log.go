@@ -1,0 +1,51 @@
+package common
+
+import (
+	"cronTask/contrib/helper"
+	"fmt"
+	g "github.com/doug-martin/goqu/v9"
+	"github.com/jmoiron/sqlx"
+	"runtime"
+	"strings"
+	"time"
+)
+
+var (
+	db *sqlx.DB
+)
+
+// InitTD 初始化td
+func InitTD(td *sqlx.DB) {
+	db = td
+}
+
+func Log(flag, format string, v ...interface{}) {
+
+	_, file, line, _ := runtime.Caller(1)
+	paths := strings.Split(file, "/")
+	l := len(paths)
+	if l > 2 {
+		file = paths[l-2] + "/" + paths[l-1]
+	}
+	path := fmt.Sprintf("%s:%d", file, line)
+	msg := fmt.Sprintf(format, v...)
+
+	ts := time.Now()
+	id := helper.GenId()
+
+	fields := g.Record{
+		"id":       id,
+		"content":  msg,
+		"project":  "task",
+		"flags":    flag,
+		"filename": path,
+		"ts":       ts.UnixMilli(),
+	}
+
+	query, _, _ := dialect.Insert("goerror").Rows(&fields).ToSQL()
+	//fmt.Println(query)
+	_, err := db.Exec(query)
+	if err != nil {
+		fmt.Println("insert SMS = ", err.Error(), fields)
+	}
+}
