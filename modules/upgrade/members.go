@@ -243,7 +243,7 @@ func membersUpgrade(m mWaterFlow, level int) {
 		BillNo:       id,
 		CreatedAt:    time.Now().UnixMilli(),
 		ID:           id,
-		CashType:     common.DividendPromo,
+		CashType:     common.TransactionDividend,
 		UID:          m.UID,
 		Username:     m.Username,
 		Prefix:       prefix,
