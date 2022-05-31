@@ -200,8 +200,7 @@ func membersUpgrade(m mWaterFlow, level int) {
 		"level": g.Op{"lt": common.Vip10}, //会员等级小于vip10
 	}
 	record := g.Record{
-		"level":           g.L("level+1"),
-		"last_up_down_at": time.Now().Unix(),
+		"level": g.L("level+1"),
 	}
 	query, _, _ := dialect.Update("tbl_members").Set(record).Where(ex).ToSQL()
 	res, err := tx.Exec(query)
