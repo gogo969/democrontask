@@ -106,12 +106,11 @@ func processVIP(mb common.Member, mtp map[string]mValidBetAmount) error {
 			return err
 		}
 
+		common.Log("upgrade", "会员名: %s VIP[%d],累计投注: %s, 升级累计投注: %s, 累计存款: %s, 升级累计存款: %s\n",
+			mb.Username, level-1, fmValidBet.String(), fnuBet.String(), fmValidDeposit.String(), fnuDeposit.String())
 		// 累计流水和累计存款 大于等于下一等级升级流水和升级存款，会员升级
 		if fmValidBet.Cmp(fnuBet) >= 0 && fmValidDeposit.Cmp(fnuDeposit) >= 0 {
-			common.Log("upgrade", "会员名: %s VIP[%d],累计投注: %s, 升级累计投注: %s, 累计存款: %s, 升级累计存款: %s\n",
-				mb.Username, level-1, fmValidBet.String(), fnuBet.String(), fmValidDeposit.String(), fnuDeposit.String())
 			common.Log("upgrade", "会员名: %s升级,累计投注: %s\n", mb.Username)
-
 			membersUpgrade(m, level)
 		} else {
 			return nil

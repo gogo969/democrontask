@@ -2,6 +2,7 @@ package common
 
 import (
 	"fmt"
+	g "github.com/doug-martin/goqu/v9"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -23,12 +24,15 @@ type DowngradeInfo struct {
 	CreatedAt uint64 `db:"created_at"` //降级时间
 }
 
-func MemberLevelList(db *sqlx.DB) (map[int]LevelInfo, error) {
+func MemberLevelList(db *sqlx.DB, prefix string) (map[int]LevelInfo, error) {
 
 	var info []LevelInfo
 	levels := map[int]LevelInfo{}
+	ex := g.Ex{
+		"prefix": prefix,
+	}
 	query, _, _ := dialect.From("tbl_member_level").Select("level", "level_name", "upgrade_deposit",
-		"upgrade_record", "relegation_flowing", "upgrade_gift", "early_month_packet", "birth_gift").ToSQL()
+		"upgrade_record", "relegation_flowing", "upgrade_gift", "early_month_packet", "birth_gift").Where(ex).ToSQL()
 	fmt.Println(query)
 	err := db.Select(&info, query)
 	if err != nil {

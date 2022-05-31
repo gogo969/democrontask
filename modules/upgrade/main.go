@@ -110,7 +110,7 @@ func levelTask(names []string, repair bool) {
 	}
 
 	// 获取会员等级配置信息
-	ml, err = common.MemberLevelList(db)
+	ml, err = common.MemberLevelList(db, prefix)
 	if err != nil {
 		fmt.Println(err)
 		return
