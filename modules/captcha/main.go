@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	cli    *redis.Client
+	cli    *redis.ClusterClient
 	c      *captcha.Captcha
 	prefix string
 	ctx    = context.Background()
@@ -27,7 +27,7 @@ func Parse(endpoints []string, path, fpath string) {
 	conf := common.ConfParse(endpoints, path)
 	prefix = conf.Prefix
 	// 初始化redis
-	cli = conn.InitRedisSentinel(conf.Redis.Addr, conf.Redis.Password, conf.Redis.Sentinel, conf.Redis.Db)
+	cli = conn.InitRedisCluster(conf.Redis.Addr, conf.Redis.Password)
 
 	fmt.Println("fpath = ", fpath)
 	c = captcha.New()

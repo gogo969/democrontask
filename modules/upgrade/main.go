@@ -20,7 +20,7 @@ import (
 var (
 	db       *sqlx.DB
 	reportDb *sqlx.DB
-	cli      *redis.Client
+	cli      *redis.ClusterClient
 	esCli    *elastic.Client
 	prefix   string
 	esPrefix string
@@ -70,7 +70,7 @@ func Parse(endpoints []string, path, usernames string) {
 	db = conn.InitDB(conf.Db.Master.Addr, conf.Db.Master.MaxIdleConn, conf.Db.Master.MaxIdleConn)
 	reportDb = conn.InitDB(conf.Db.Report.Addr, conf.Db.Report.MaxIdleConn, conf.Db.Report.MaxIdleConn)
 	// 初始化redis
-	cli = conn.InitRedisSentinel(conf.Redis.Addr, conf.Redis.Password, conf.Redis.Sentinel, conf.Redis.Db)
+	cli = conn.InitRedisCluster(conf.Redis.Addr, conf.Redis.Password)
 	// 初始化es
 	esCli = conn.InitES(conf.Es.Host, conf.Es.Username, conf.Es.Password)
 	// 初始化td

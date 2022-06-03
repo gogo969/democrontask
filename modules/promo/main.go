@@ -14,7 +14,7 @@ import (
 // 活动流水计算脚本
 var (
 	db         *sqlx.DB
-	cli        *redis.Client
+	cli        *redis.ClusterClient
 	prefix     string
 	esPrefix   string
 	pullPrefix string
@@ -40,7 +40,7 @@ func Parse(endpoints []string, path, flag string) {
 	esPrefix = conf.EsPrefix
 	pullPrefix = conf.PullPrefix
 	// 初始化redis
-	cli = conn.InitRedisSentinel(conf.Redis.Addr, conf.Redis.Password, conf.Redis.Sentinel, conf.Redis.Db)
+	cli = conn.InitRedisCluster(conf.Redis.Addr, conf.Redis.Password)
 	// 初始化db
 	db = conn.InitDB(conf.Db.Master.Addr, conf.Db.Master.MaxIdleConn, conf.Db.Master.MaxIdleConn)
 	// 初始化es
