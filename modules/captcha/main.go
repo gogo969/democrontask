@@ -56,7 +56,6 @@ func handle() {
 
 		img, code := c.Create(4, captcha.CLEAR)
 		code = strings.ToLower(code)
-		code = fmt.Sprintf("%s:cap:code:%s", prefix, code)
 		/*
 			fp, err := os.Create(code+".png")
 			if err != nil {
@@ -74,8 +73,9 @@ func handle() {
 			continue
 		}
 
-		pipe.Set(ctx, code, buf.Bytes(), time.Duration(48)*time.Hour)
 		pipe.LPush(ctx, key, code)
+		code = fmt.Sprintf("%s:cap:code:%s", prefix, code)
+		pipe.Set(ctx, code, buf.Bytes(), time.Duration(48)*time.Hour)
 		buf.Reset()
 		buf = nil
 	}
