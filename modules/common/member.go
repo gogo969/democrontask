@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	g "github.com/doug-martin/goqu/v9"
+	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	"github.com/shopspring/decimal"
 )
@@ -116,4 +117,28 @@ func MemberBalance(db *sqlx.DB, uid, prefix string) (decimal.Decimal, error) {
 	}
 
 	return balance, nil
+}
+
+func MemberUpdateCache(db *sqlx.DB, cli *redis.ClusterClient, prefix, username string) error {
+
+	var (
+		err error
+		dst Member
+	)
+
+	dst, err = MemberFindOne(db, prefix, username)
+	if err != nil {
+		return err
+	}
+
+	key := prefix + ":member:" + dst.Username
+	fields := []interface{}{"uid", dst.UID, "username", dst.Username, "tester", dst.Tester, "top_uid", dst.TopUid, "top_name", dst.TopName, "parent_uid", dst.ParentUid, "parent_name", dst.ParentName, "level", dst.Level, "balance", dst.Balance, "lock_amount", dst.LockAmount, "commission", dst.Commission, "group_name", dst.GroupName, "agency_type", dst.AgencyType, "address", dst.Address, "avatar", dst.Avatar}
+
+	pipe := cli.TxPipeline()
+	pipe.Del(ctx, key)
+	pipe.HMSet(ctx, key, fields...)
+	pipe.Persist(ctx, key)
+	pipe.Exec(ctx)
+	pipe.Close()
+	return nil
 }

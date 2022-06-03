@@ -270,6 +270,18 @@ func membersUpgrade(m mWaterFlow, level int) {
 		return
 	}
 
+	balance, err = common.MemberBalance(db, m.UID, prefix)
+	if err != nil {
+		common.Log("upgrade", "MemberBalance error : %v", err.Error())
+	}
+
+	key := prefix + ":member:" + m.Username
+	fields := []interface{}{"level", fmt.Sprintf("%d", level+1), "balance", balance.String()}
+	err = cli.HMSet(ctx, key, fields...).Err()
+	if err != nil {
+		common.Log("upgrade", "error : %v", err)
+	}
+
 	title := "Thông Báo Khuyến Mãi Thăng Cấp VIP"
 	content := fmt.Sprintf("Quý Khách Của P3 Thân Mến :\n    Chúc Mừng Bạn Đã Thăng Cấp VIP: %d !, Khuyến Mãi Thăng Cấp Đã Được Tặng Vào Tài Khoản Của Bạn,Vui Lòng Kiểm Tra Ngay ,Nếu Bạn Có Bất Cứ Thắc Mắc Vấn Đề Gì  Vui Lòng Liên Hệ CSKH Để Biết Thêm Chi Tiết .【P3】Chúc Bạn Thăng Cấp Mạnh Mẽ.", level+1)
 	err = messageSend("0", title, "", content, "system", prefix, 0, 0, 1, []string{m.Username})
