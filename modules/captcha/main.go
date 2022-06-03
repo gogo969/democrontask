@@ -54,10 +54,11 @@ func handle() {
 	pipe.Unlink(ctx, key)
 	for i := 0; i < 3000; i++ {
 
-		img, str := c.Create(4, captcha.CLEAR)
-		str = strings.ToLower(str)
+		img, code := c.Create(4, captcha.CLEAR)
+		code = strings.ToLower(code)
+		code = fmt.Sprintf("%s:cap:code:%s", prefix, code)
 		/*
-			fp, err := os.Create(str+".png")
+			fp, err := os.Create(code+".png")
 			if err != nil {
 				fmt.Println("os.Create = ", err)
 				continue
@@ -66,15 +67,15 @@ func handle() {
 			png.Encode(fp, img)
 			fp.Close()
 		*/
-		fmt.Println("str = ", str)
+		fmt.Println("code = ", code)
 		buf := new(bytes.Buffer)
 		if err := png.Encode(buf, *img); err != nil {
 			fmt.Println("png.Encode = ", err)
 			continue
 		}
 
-		pipe.Set(ctx, str, buf.Bytes(), time.Duration(48)*time.Hour)
-		pipe.LPush(ctx, key, str)
+		pipe.Set(ctx, code, buf.Bytes(), time.Duration(48)*time.Hour)
+		pipe.LPush(ctx, key, code)
 		buf.Reset()
 		buf = nil
 	}
