@@ -16,14 +16,16 @@ import (
 )
 
 var (
-	cli *redis.Client
-	c   *captcha.Captcha
-	ctx = context.Background()
+	cli    *redis.Client
+	c      *captcha.Captcha
+	prefix string
+	ctx    = context.Background()
 )
 
 func Parse(endpoints []string, path, fpath string) {
 
 	conf := common.ConfParse(endpoints, path)
+	prefix = conf.Prefix
 	// 初始化redis
 	cli = conn.InitRedisSentinel(conf.Redis.Addr, conf.Redis.Password, conf.Redis.Sentinel, conf.Redis.Db)
 
@@ -48,7 +50,8 @@ func handle() {
 	pipe := cli.TxPipeline()
 	defer pipe.Close()
 
-	pipe.Unlink(ctx, "captcha")
+	key := fmt.Sprintf("%s:captcha", prefix)
+	pipe.Unlink(ctx, key)
 	for i := 0; i < 3000; i++ {
 
 		img, str := c.Create(4, captcha.CLEAR)
@@ -71,7 +74,7 @@ func handle() {
 		}
 
 		pipe.Set(ctx, str, buf.Bytes(), time.Duration(48)*time.Hour)
-		pipe.LPush(ctx, "captcha", str)
+		pipe.LPush(ctx, key, str)
 		buf.Reset()
 		buf = nil
 	}
