@@ -10,7 +10,6 @@ import (
 	g "github.com/doug-martin/goqu/v9"
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
-	"github.com/olivere/elastic/v7"
 	"strings"
 	"sync"
 	"time"
@@ -19,11 +18,10 @@ import (
 // 全局参数
 var (
 	db       *sqlx.DB
+	td       *sqlx.DB
 	reportDb *sqlx.DB
 	cli      *redis.ClusterClient
-	esCli    *elastic.Client
 	prefix   string
-	esPrefix string
 	loc      *time.Location
 	dialect  = g.Dialect("mysql")
 	ml       = map[int]common.LevelInfo{}
@@ -62,8 +60,6 @@ func Parse(endpoints []string, path, usernames string) {
 
 	// 场馆账号前缀
 	prefix = conf.Prefix
-	esPrefix = conf.EsPrefix
-	//pullPrefix = conf.PullPrefix
 	loc, _ = time.LoadLocation("Asia/Bangkok")
 
 	// 初始化db
@@ -71,10 +67,8 @@ func Parse(endpoints []string, path, usernames string) {
 	reportDb = conn.InitDB(conf.Db.Report.Addr, conf.Db.Report.MaxIdleConn, conf.Db.Report.MaxIdleConn)
 	// 初始化redis
 	cli = conn.InitRedisCluster(conf.Redis.Addr, conf.Redis.Password)
-	// 初始化es
-	esCli = conn.InitES(conf.Es.Host, conf.Es.Username, conf.Es.Password)
 	// 初始化td
-	td := conn.InitTD(conf.Td.Addr, conf.Td.MaxIdleConn, conf.Td.MaxOpenConn)
+	td = conn.InitTD(conf.Td.Addr, conf.Td.MaxIdleConn, conf.Td.MaxOpenConn)
 	common.InitTD(td)
 
 	var names []string
